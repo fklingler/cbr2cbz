@@ -1,40 +1,38 @@
 # encoding: utf-8
-
-require 'optparse'
-
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: cbr2cbz [options] file ..."
-
-  opts.on("-k", "--keep", "Keep original file") do |k|
-    options[:keep] = k
-  end
-
-  opts.on("-v", "--verbose", "Run verbosely") do |v|
-    options[:verbose] = v
-  end
-
-  opts.on_tail("-h", "--help", "Show this message") do
-    puts opts
-    exit
-  end
-end.parse!
-
 require 'fileutils'
 require 'zip/zip'
 require 'zip/zipfilesystem'
 
-ARGV.each do |arg|
-  if File.exists?(arg)
-    if File.directory?(arg)
-      files = Dir.glob(arg + '/**')
-      puts "Processing directory #{arg}" if options[:verbose]
-    else
-      files = [arg]
+module Cbr2cbz
+  class Converter
+    def initialize(options)
+      @options = options
     end
-    files.each do |filename|
+
+    def convert(entries = [])
+      entries.each do |entry|
+        if File.exists?(entry)
+          if File.directory?(entry)
+            convert_dir(entry)
+          else
+            convert_file(entry)
+          end
+        else
+          $stderr.puts "Warning -- #{arg} does not exist!"
+        end
+      end
+    end
+
+    def convert_dir(dirname)
+      puts "Processing directory #{dirname}" if @options[:verbose]
+      Dir.glob(dirname + '/**').each do |filename|
+        convert_file(filename)
+      end
+    end
+
+    def convert_file(filename)
       if File.extname(filename).downcase == '.cbr'
-        puts "Processing file #{File.basename(filename)}" if options[:verbose]
+        puts "Processing file #{File.basename(filename)}" if @options[:verbose]
         FileUtils.cd(File.dirname(filename)) do
 
           filename_without_ext = File.basename(filename, '.*')
@@ -55,14 +53,12 @@ ARGV.each do |arg|
 
             # Clean up
             FileUtils.rm_rf(filename_without_ext)
-            FileUtils.rm(filename) unless options[:keep]
+            FileUtils.rm(filename) unless @options[:keep]
 
-            puts "Created new file #{new_filename}" if options[:verbose]
+            puts "Created new file #{new_filename}" if @options[:verbose]
           end
         end
       end
     end
-  else
-    $stderr.puts "Warning -- #{arg} does not exist!"
   end
 end
