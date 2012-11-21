@@ -4,7 +4,7 @@ module Cbr2cbz
   class CLI
     def self.start
       options = {}
-      OptionParser.new do |opts|
+      opts = OptionParser.new do |opts|
         opts.banner = "Usage: cbr2cbz [options] file ..."
 
         opts.on("-k", "--keep", "Keep original file") do |k|
@@ -19,9 +19,14 @@ module Cbr2cbz
           puts opts
           exit
         end
-      end.parse!
+      end
+      opts.parse!
 
-      Converter.new(options).convert(ARGV)
+      if ARGV.empty? 
+        puts opts
+      else
+        Converter.new(options).convert(ARGV)
+      end
     end
   end
 end
