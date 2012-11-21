@@ -10,6 +10,10 @@ OptionParser.new do |opts|
     options[:keep] = k
   end
 
+  opts.on("-v", "--verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts
     exit
@@ -21,29 +25,44 @@ require 'zip/zip'
 require 'zip/zipfilesystem'
 
 ARGV.each do |arg|
-  files = File.directory?(arg) ? Dir.glob(arg + '/**') : [arg]
-  files.each do |filename|
-    if File.extname(filename).downcase == '.cbr'
-      FileUtils.cd(File.dirname(filename)) do
+  if File.exists?(arg)
+    if File.directory?(arg)
+      files = Dir.glob(arg + '/**')
+      puts "Processing directory #{arg}" if options[:verbose]
+    else
+      files = [arg]
+    end
+    files.each do |filename|
+      if File.extname(filename).downcase == '.cbr'
+        puts "Processing file #{File.basename(filename)}" if options[:verbose]
+        FileUtils.cd(File.dirname(filename)) do
 
-        filename_without_ext = File.basename(filename, '.*')
+          filename_without_ext = File.basename(filename, '.*')
+          new_filename = filename_without_ext + '.cbz'
 
-        # Unrar CBR
-        `unrar e "#{filename}" "#{filename_without_ext}"/`
+          if File.exists?(new_filename)
+            $stderr.puts "Warning -- #{new_filename} already exists! Skipping."
+          else
+            # Unrar CBR
+            `unrar e "#{filename}" "#{filename_without_ext}"/`
 
-        # Create CBZ
-        new_file = filename_without_ext + '.cbz'
+            # Create CBZ
+            Zip::ZipFile.open(new_filename, 'w') do |zipfile|
+              Dir[filename_without_ext + "/*"].each do |file|
+                zipfile.add(File.basename(file),file)
+              end
+            end
 
-        Zip::ZipFile.open(new_file, 'w') do |zipfile|
-          Dir[filename_without_ext + "/*"].each do |file|
-            zipfile.add(File.basename(file),file)
+            # Clean up
+            FileUtils.rm_rf(filename_without_ext)
+            FileUtils.rm(filename) unless options[:keep]
+
+            puts "Created new file #{new_filename}" if options[:verbose]
           end
         end
-
-        # Clean up
-        FileUtils.rm_rf(filename_without_ext)
-        FileUtils.rm(filename) unless options[:keep]
       end
     end
+  else
+    $stderr.puts "Warning -- #{arg} does not exist!"
   end
 end
