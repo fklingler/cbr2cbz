@@ -1,4 +1,4 @@
-Cbr2cbz is a simple command line utility to convert your comic book archive files from CBR to CBZ. It can be useful to make uniform your comic book library, or to make sure your comic book reader can read the metadata when it does not work with CBR files (as I do with ComicBookLover for iOS with metadata filled with ComicBookLover for Mac OS X).
+cbr2cbz is a simple command line utility to convert your comic book archive files from CBR to CBZ. It can be useful to make uniform your comic book library, or to make sure your comic book reader can read the metadata when it does not work with CBR files (as I do with ComicBookLover for iOS with metadata filled with ComicBookLover for Mac OS X).
 
 Installation
 ------------
