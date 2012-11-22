@@ -3,7 +3,7 @@ $:.unshift File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name              = "cbr2cbz"
-  s.version           = '0.1.1'
+  s.version           = '0.1.2'
   s.license           = 'MIT'
   s.author            = "François Klingler"
   s.email             = "francois@fklingler.com"

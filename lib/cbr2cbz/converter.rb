@@ -31,6 +31,7 @@ module Cbr2cbz
     end
 
     def convert_file(filename)
+      filename = File.expand_path(filename)
       if File.extname(filename).downcase == '.cbr'
         puts "Processing file #{File.basename(filename)}" if @options[:verbose]
         FileUtils.cd(File.dirname(filename)) do
