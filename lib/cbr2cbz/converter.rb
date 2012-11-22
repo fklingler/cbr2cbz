@@ -18,7 +18,7 @@ module Cbr2cbz
             convert_file(entry)
           end
         else
-          $stderr.puts "Warning -- #{arg} does not exist!"
+          $stderr.puts "Warning -- #{entry} does not exist!"
         end
       end
     end
