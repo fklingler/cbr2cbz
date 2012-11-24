@@ -43,7 +43,7 @@ module Cbr2cbz
             $stderr.puts "Warning -- #{new_filename} already exists! Skipping."
           else
             # Unrar CBR
-            `unrar e "#{filename}" "#{filename_without_ext}"/`
+            unrar filename, filename_without_ext
 
             # Create CBZ
             Zip::ZipFile.open(new_filename, 'w') do |zipfile|
@@ -60,6 +60,10 @@ module Cbr2cbz
           end
         end
       end
+    end
+
+    def unrar(filename, folder)
+      `unrar e "#{filename}" "#{folder}"/`
     end
   end
 end
