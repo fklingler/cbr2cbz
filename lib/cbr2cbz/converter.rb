@@ -5,7 +5,7 @@ require 'zip/zipfilesystem'
 
 module Cbr2cbz
   class Converter
-    def initialize(options)
+    def initialize(options = {})
       @options = options
     end
 
@@ -63,7 +63,7 @@ module Cbr2cbz
     end
 
     def unrar(filename, folder)
-      `unrar e "#{filename}" "#{folder}"/`
+      `unrar e "#{filename}" "#{folder}/"`
     end
   end
 end
