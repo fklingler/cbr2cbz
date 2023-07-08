@@ -42,13 +42,20 @@ module Cbr2cbz
           if File.exists?(new_filename)
             $stderr.puts "Warning -- #{new_filename} already exists! Skipping."
           else
+            # Check if it's actually a CBZ file
+            if is_cbz?(filename)
+              puts "#{File.basename(filename)} is already a CBZ file. Renaming..."
+              FileUtils.mv(filename, new_filename)
+              next
+            end
+
             # Unrar CBR
-            unrar filename, filename_without_ext
+            unrar(filename, filename_without_ext)
 
             # Create CBZ
             Zip::ZipFile.open(new_filename, 'w') do |zipfile|
               Dir[filename_without_ext + "/*"].each do |file|
-                zipfile.add(File.basename(file),file)
+                zipfile.add(File.basename(file), file)
               end
             end
 
@@ -64,6 +71,14 @@ module Cbr2cbz
 
     def unrar(filename, folder)
       `unrar e "#{filename}" "#{folder}/"`
+    end
+
+    def is_cbz?(filename)
+      Zip::ZipFile.open(filename) do |zipfile|
+        zipfile.entries.any? { |entry| entry.name.downcase.end_with?('.jpg', '.jpeg', '.png', '.gif') }
+      end
+    rescue
+      false
     end
   end
 end
